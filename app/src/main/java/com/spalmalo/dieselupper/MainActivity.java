@@ -5,10 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.spalmalo.dieselupper.http.DieselService;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import retrofit.client.Response;
 import rx.Observer;
@@ -17,11 +21,14 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
+    public String mUser = "kgking";
+    public String mPass = "syncmaster793df";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new DieselService("test","test","test")
+        new DieselService(mUser, mPass, "test")
                 .login()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -38,13 +45,25 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(Response response) {
-                        String result="";
+                        String result = "";
                         try {
-                            result= convertStreamToString(response.getBody().in());
+                            result = convertStreamToString(response.getBody().in());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        Log.i("Result " , result);
+                        Log.i("Result ", result);
+                        File file = new File(getExternalCacheDir(), "result.txt");
+                        PrintWriter out = null;
+                        try {
+                            out = new PrintWriter(file);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        out.print(result);
+                        if (result.toLowerCase().contains(mUser.toLowerCase()))
+                            Toast.makeText(getApplicationContext(), "Authorized", Toast.LENGTH_LONG).show();
+                        else if (result.contains("<div id=\"userlinksguest\">"))
+                            Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG).show();
                     }
                 });
     }

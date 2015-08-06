@@ -1,13 +1,10 @@
 package com.spalmalo.dieselupper.http;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import retrofit.RestAdapter;
 import retrofit.client.Response;
-import retrofit.http.Body;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
-import retrofit.http.Query;
 import rx.Observable;
 
 /**
@@ -30,16 +27,13 @@ public class DieselService {
     }
 
     private interface WebService {
-        @POST("/index.php")
-        Observable<Response> login(@Query("act") String act, @Query("CODE") String code, @Body Map<String,String> body);
+        @FormUrlEncoded
+        @POST("/index.php?act=Login&CODE=01")
+        Observable<Response> login(@Field("UserName") String user, @Field("PassWord") String password);
     }
 
-    public Observable<Response> login(){
-        Map<String, String> body=new HashMap<>();
-        body.put("UserName", mUser);
-        body.put("PassWord", mPassword);
-        body.put("Submit", "Войти");
-        return mService.login("Login","01",body);
+    public Observable<Response> login() {
+        return mService.login(mUser, mPassword);
     }
 
 
