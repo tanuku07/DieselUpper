@@ -1,10 +1,13 @@
 package com.spalmalo.dieselupper.http;
 
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.Response;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.Query;
 import rx.Observable;
 
 /**
@@ -13,15 +16,23 @@ import rx.Observable;
 public class DieselService {
     private String mUser;
     private String mPassword;
-    private String mPost;
+    private String mPostId;
     private WebService mService;
+    private String mCookies;
 
-    public DieselService(String mUser, String mPassword, String mPost) {
-        this.mUser = mUser;
-        this.mPassword = mPassword;
-        this.mPost = mPost;
+    public DieselService(String user, String password, String cookies, String postId) {
+        this.mUser = user;
+        this.mCookies = cookies;
+        this.mPassword = password;
+        this.mPostId = postId;
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint("http://diesel.elcat.kg")
+                .setRequestInterceptor(new RequestInterceptor() {
+                    @Override
+                    public void intercept(RequestFacade request) {
+                        request.addHeader("Cookie", mCookies);
+                    }
+                })
                 .build();
         mService = restAdapter.create(WebService.class);
     }
@@ -30,11 +41,21 @@ public class DieselService {
         @FormUrlEncoded
         @POST("/index.php?act=Login&CODE=01")
         Observable<Response> login(@Field("UserName") String user, @Field("PassWord") String password);
+
+        @GET("/index.php")
+        Observable<Response> getPost(@Query("showtopic") String id);
     }
 
     public Observable<Response> login() {
         return mService.login(mUser, mPassword);
     }
 
+    public Observable<Response> getPost() {
+        return mService.getPost(mPostId);
+    }
+
+    public String getPostId() {
+        return mPostId;
+    }
 
 }
