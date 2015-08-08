@@ -4,8 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,8 +24,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String COOKIE_PREF = "cookies";
     private static final String COOKIE = "cookie_key";
     public SharedPreferences mSharedPreferences;
-    public String mUser = "kgking";
-    public String mPass = "syncmaster793df";
+    /*    public String mUser = "kgking";
+        public String mPass = "syncmaster793df";*/
+    public String mUser = "aza_kush";
+    public String mPass = "qwepoi19";
     private DieselService diesel;
 
 
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mSharedPreferences = getSharedPreferences(COOKIE_PREF, MODE_PRIVATE);
 
-        start(mUser, mPass, "130747346");
+        start(mUser, mPass, "141889691");
     }
 
     private void start(String user, String password, String postId) {
@@ -113,16 +113,34 @@ public class MainActivity extends AppCompatActivity {
                         String forum = "";
                         if (m.find()) forum = result.substring(m.start() + 16, m.end() - 1);
 
-                        String topic = diesel.getPostId();
-
                         String authKey = "";
                         p = Pattern.compile("name=\"auth_key\" value=\"(.*)\"");
                         m = p.matcher(result);
                         if (m.find()) authKey = result.substring(m.start() + 23, m.end() - 1);
 
                         if (!TextUtils.isEmpty(forum) && !TextUtils.isEmpty(authKey)) {
-                            Toast.makeText(MainActivity.this, "POST Parsed", Toast.LENGTH_LONG).show();
-                        } else start(mUser, mPass, topic);
+                            newUp(forum, authKey);
+                        } else start(mUser, mPass, diesel.getPostId());
+                    }
+                });
+    }
+
+    private void newUp(String f, String authKey) {
+        diesel.newUp(f, authKey)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Response>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Response response) {
                     }
                 });
     }
@@ -144,25 +162,4 @@ public class MainActivity extends AppCompatActivity {
                 .apply();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }

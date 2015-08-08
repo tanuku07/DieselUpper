@@ -44,6 +44,17 @@ public class DieselService {
 
         @GET("/index.php")
         Observable<Response> getPost(@Query("showtopic") String id);
+
+        @FormUrlEncoded
+        @POST("/index.php")
+        Observable<Response> newUp(@Field("act") String act,
+                                   @Field("CODE") String code,
+                                   @Field("f") String f,
+                                   @Field("t") String t,
+                                   @Field("st") String st,
+                                   @Field("auth_key") String authKey,
+                                   @Field("fast_reply_used") String fastReplyUsed,
+                                   @Field("Post") String post);
     }
 
     public Observable<Response> login() {
@@ -52,6 +63,10 @@ public class DieselService {
 
     public Observable<Response> getPost() {
         return mService.getPost(mPostId);
+    }
+
+    public Observable<Response> newUp(String f, String authKey) {
+        return mService.newUp("Post", "03", f, getPostId(), "99999", authKey, "1", "test");
     }
 
     public String getPostId() {
